@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookSpace | Modern Library Management</title>
+    <meta name="description" content="BookSpace - A modern, secure, and intuitive library management portal.">
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome or similar icons could go here, but using emojis/text for simplicity -->
+</head>
+<body>
+    <!-- Auth Pages (Hidden by default based on login state) -->
+    <div id="authWrapper" class="auth-page">
+        <!-- Login Card -->
+        <div id="loginSection" class="auth-card">
+            <div class="hero-branding" style="justify-content: center; margin-bottom: 30px;">
+                <div class="logo-icon">📚</div>
+                <h1>BookSpace</h1>
+            </div>
+            <h2 style="text-align: center; margin-bottom: 24px; font-weight: 600;">Welcome Back</h2>
+            
+            <div class="form-group">
+                <label style="font-size: 14px; color: var(--text-muted); display: block; margin-bottom: 8px;">Access Type</label>
+                <select id="userType">
+                    <option value="member">Student / Member</option>
+                    <option value="admin">Librarian / Admin</option>
+                </select>
+                
+                <label style="font-size: 14px; color: var(--text-muted); display: block; margin-bottom: 8px;">Username</label>
+                <input type="text" id="username" placeholder="Enter your username" required>
+                
+                <label style="font-size: 14px; color: var(--text-muted); display: block; margin-bottom: 8px;">Password</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+                
+                <button id="loginBtn">Sign In</button>
+            </div>
+            
+            <div style="text-align: center; margin-top: 24px; font-size: 14px; color: var(--text-muted);">
+                New to BookSpace? <a href="#" id="showRegister" style="color: var(--primary); font-weight: 600; text-decoration: none;">Join Now</a>
+            </div>
+            
+            <div style="margin-top: 30px; padding: 16px; background: rgba(255,255,255,0.03); border-radius: 12px; font-size: 12px; color: var(--text-muted); border: 1px dashed var(--border);">
+                <strong>Demo:</strong> john (Member/john123), admin (Admin/admin123)
+            </div>
+        </div>
+
+        <!-- Register Card -->
+        <div id="registerSection" class="auth-card hidden" style="max-width: 500px;">
+            <div class="hero-branding" style="justify-content: center; margin-bottom: 20px;">
+                <div class="logo-icon">✨</div>
+                <h1>Join BookSpace</h1>
+            </div>
+            
+            <div class="form-group">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                    <input type="text" id="regUsername" placeholder="Username" required>
+                    <input type="password" id="regPassword" placeholder="Password" required>
+                </div>
+                <input type="text" id="regFullName" placeholder="Full Name" required style="margin-bottom: 12px;">
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 12px;">
+                    <input type="text" id="regRollNo" placeholder="Roll Number / ID" required>
+                    <input type="number" id="regAge" placeholder="Age" required>
+                </div>
+                
+                <select id="regInstitute" onchange="app.handleInstituteChange(this.value)" style="margin-bottom: 12px;">
+                    <option value="">Select Institute</option>
+                    <option value="IIT Bombay">IIT Bombay</option>
+                    <option value="MIT Manipal">MIT Manipal</option>
+                    <option value="NIT Trichy">NIT Trichy</option>
+                    <option value="BITS Pilani">BITS Pilani</option>
+                    <option value="other">Other (Type below)</option>
+                </select>
+                <input type="text" id="regInstituteOther" class="hidden" placeholder="Type Institute Name" style="margin-bottom: 12px;">
+                
+                <button id="registerBtn">Create Account</button>
+                <button class="secondary" id="showLogin" style="margin-top: 10px;">Back to Login</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Layout (Hidden by default) -->
+    <div id="appWrapper" class="app-wrapper hidden">
+        <aside class="sidebar">
+            <div class="hero-branding">
+                <div class="logo-icon">📚</div>
+                <h1>BookSpace</h1>
+            </div>
+
+            <!-- Member Navigation -->
+            <nav id="memberNav" class="nav-menu">
+                <div class="nav-item active" data-tab="borrow-tab"><span>🏠</span> <span>Browse Library</span></div>
+                <div class="nav-item" data-tab="my-books-tab"><span>📖</span> <span>My Borrowed Books</span></div>
+                <div class="nav-item" data-tab="fines-tab"><span>💰</span> <span>Fines & Payments</span></div>
+                <div class="nav-item" data-tab="profile-tab"><span>👤</span> <span>My Profile</span></div>
+            </nav>
+
+            <!-- Admin Navigation -->
+            <nav id="adminNav" class="nav-menu hidden">
+                <div class="nav-item active" data-tab="admin-dashboard-tab"><span>📊</span> <span>Analytics</span></div>
+                <div class="nav-item" data-tab="admin-inventory-tab"><span>📦</span> <span>Inventory</span></div>
+                <div class="nav-item" data-tab="admin-members-tab"><span>👥</span> <span>Members</span></div>
+            </nav>
+
+            <div class="user-profile-nav">
+                <div id="profileNavContainer">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom:10px">
+                        <div style="width: 32px; height: 32px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px;">👤</div>
+                        <span id="memberName" style="font-weight: 600;">User</span>
+                    </div>
+                </div>
+                <button class="secondary" onclick="app.logout()">Log Out</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <!-- Member Sections -->
+            <div id="borrow-tab" class="section tab-content">
+                <div style="margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                        <h2 style="font-size: 28px; margin-bottom: 8px;">Explore Our Collection</h2>
+                        <p style="color: var(--text-muted);">Find your next favorite read among thousands of titles.</p>
+                    </div>
+                </div>
+                
+                <div class="filter-toolbar" style="margin-bottom: 25px;">
+                    <input type="text" id="searchInput" placeholder="Search title, author, isbn..." style="flex: 2;">
+                    <select id="categoryFilter" onchange="app.filterBooks()">
+                        <option value="all">All Categories</option>
+                        <option value="Fiction">Fiction</option>
+                        <option value="Science Fiction">Science Fiction</option>
+                        <option value="Classic">Classic</option>
+                        <option value="Fantasy">Fantasy</option>
+                        <option value="Self-Help">Self-Help</option>
+                        <option value="Technology">Technology</option>
+                    </select>
+                    <select id="statusFilter" onchange="app.filterBooks()">
+                        <option value="all">Any Status</option>
+                        <option value="available">Available</option>
+                        <option value="borrowed">Borrowed</option>
+                    </select>
+                </div>
+
+                <div class="table-container card-shadow">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Book Title & Author</th>
+                                <th>Category</th>
+                                <th>Added Date</th>
+                                <th>Stock</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookListTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="my-books-tab" class="section tab-content hidden">
+                <h2 style="margin-bottom: 24px;">Your Loan History</h2>
+                <div class="table-container card-shadow">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Book Details</th>
+                                <th>Borrowed On</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="borrowedBooksTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="fines-tab" class="section tab-content hidden">
+                <h2 style="margin-bottom: 24px;">Financial Overview</h2>
+                <div id="finesInfo"></div>
+            </div>
+
+            <div id="profile-tab" class="section tab-content hidden">
+                <h2 style="margin-bottom: 24px;">Edit Your Profile</h2>
+                <div class="stat-card" style="max-width: 600px;">
+                    <div class="form-group">
+                        <label style="color:var(--text-muted); font-size:14px;">Full Name</label>
+                        <input type="text" id="editFullName" placeholder="Your Full Name">
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div>
+                                <label style="color:var(--text-muted); font-size:14px;">Roll Number</label>
+                                <input type="text" id="editRollNo" placeholder="Roll No">
+                            </div>
+                            <div>
+                                <label style="color:var(--text-muted); font-size:14px;">Age</label>
+                                <input type="number" id="editAge" placeholder="Age">
+                            </div>
+                        </div>
+                        
+                        <label style="color:var(--text-muted); font-size:14px;">Institute</label>
+                        <input type="text" id="editInstitute" placeholder="Institute Name">
+                        
+                        <button onclick="app.saveProfile()" style="margin-top: 20px;">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Sections -->
+            <div id="admin-dashboard-tab" class="section tab-content hidden">
+                <div style="margin-bottom: 30px;">
+                    <h2 style="font-size: 28px; margin-bottom: 8px;">System Analytics</h2>
+                    <p style="color: var(--text-muted);">Overview of library health and circulation.</p>
+                </div>
+                
+                <div class="dashboard-grid" id="adminStats"></div>
+
+                <div style="margin-top: 40px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2 style="font-size: 22px;">Book Inventory Status</h2>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Book Detail</th>
+                                    <th>Status</th>
+                                    <th>Current Holder</th>
+                                    <th>Popularity</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminBookTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="admin-inventory-tab" class="section tab-content hidden">
+                <h2 style="margin-bottom: 24px;">Inventory Management</h2>
+                <div id="addBookSection" class="stat-card" style="margin-bottom: 30px;">
+                    <h3 id="invActionTitle" style="margin-bottom: 15px;">Acquire New Title</h3>
+                    <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 10px;">
+                        <input type="text" id="bookTitle" placeholder="Title">
+                        <input type="text" id="bookAuthor" placeholder="Author">
+                        <select id="bookCategory">
+                            <option value="Fiction">Fiction</option>
+                            <option value="Technology">Technology</option>
+                            <option value="Science Fiction">Science Fiction</option>
+                            <option value="Business">Business</option>
+                            <option value="Classic">Classic</option>
+                            <option value="Fantasy">Fantasy</option>
+                            <option value="Self-Help">Self-Help</option>
+                        </select>
+                        <input type="number" id="bookStockCount" placeholder="Stock" style="width: 80px;">
+                        <input type="hidden" id="editBookId">
+                        <button id="addBookBtn" style="padding: 0 20px;">Add Book</button>
+                        <button id="cancelEditBtn" class="secondary hidden" onclick="app.resetBookForm()" style="padding: 0 15px;">Cancel</button>
+                    </div>
+                </div>
+
+                <div class="table-container card-shadow">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Book Details</th>
+                                <th>Category</th>
+                                <th>ISBN</th>
+                                <th>Stock Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="admin-members-tab" class="section tab-content hidden">
+                <h2 style="margin-bottom: 24px;">Member Management</h2>
+                <div id="membersList" style="display: flex; flex-direction: column; gap: 12px;"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
